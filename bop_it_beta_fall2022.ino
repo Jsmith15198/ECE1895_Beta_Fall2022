@@ -71,11 +71,16 @@ void loop() {
           }
 
 
+
+          startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
-        lose = true; // Loss boolean turns from false to true to end game
-        incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        if(startTime >= endTime) {
+          lose = true; // Loss boolean turns from false to true to end game
+          incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        }
+        
       }
 
       else if(command == 2) { // CRUSH IT command
@@ -95,11 +100,15 @@ void loop() {
           }
 
 
+
+          startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
-        lose = true; // Loss boolean turns from false to true to end game
-        incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        if(startTime >= endTime) {
+          lose = true; // Loss boolean turns from false to true to end game
+          incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        }
       }
 
       else if(command == 3) { // FILL IT command
@@ -118,11 +127,15 @@ void loop() {
           }
 
 
+
+          startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
-        lose = true; // Loss boolean turns from false to true to end game
-        incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        if(startTime >= endTime) {
+          lose = true; // Loss boolean turns from false to true to end game
+          incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
+        }
       }
 
       if(lose) break; // Break out of for loop if incorrect command is given; ends game
