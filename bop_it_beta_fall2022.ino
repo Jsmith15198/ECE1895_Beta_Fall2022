@@ -33,9 +33,15 @@ void setup() {
   pinMode(flexSensor, INPUT); // Flex sensor is input
 }
 
+bool startup = false;
+
 // Loop for the bop-it
 void loop() {
-  displayScore(0); // Initalizes the 7-segment displays to read "00"
+  if(!startup) { // Powers up the 7-segment displays upon starting the program
+    displayScore(0); // Initalizes the 7-segment displays to read "00"
+    startup = true; 
+  }
+  
   if(digitalRead(tilt) == HIGH) { // Starts the game when the bottle is tilted
     int score = 0; // Sets the initial score of the game to 0
     displayScore(0); // Resets score to "00" from prior game (if applicable) or just stays at "00" for first game
