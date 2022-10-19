@@ -12,8 +12,6 @@
 #define tilt 3
 #define hall 4
 #define flexSensor A0
-#define accelSDA A4
-#define accelSCL A5
 
 // Setup function for all inputs/outputs
 void setup() {
@@ -31,9 +29,12 @@ void setup() {
   pinMode(oneSeg1, OUTPUT); // Ones digit for binary 0 
   pinMode(tilt, INPUT); // Tilt ball is input
   pinMode(flexSensor, INPUT); // Flex sensor is input
+  pinMode(hall, INPUT); // Hall effect sensor is output
 }
 
 bool startup = false;
+bool openCap = false;
+bool closeCap = false;
 
 // Loop for the bop-it
 void loop() {
@@ -42,7 +43,7 @@ void loop() {
     startup = true; 
   }
   
-  if(digitalRead(tilt) == HIGH) { // Starts the game when the bottle is tilted
+  if(flexADCScale(5) < 2.5) { // Starts the game when the bottle is crushed
     int score = 0; // Sets the initial score of the game to 0
     displayScore(0); // Resets score to "00" from prior game (if applicable) or just stays at "00" for first game
     bool lose = false; // Turns to true if time for response expires or wrong command given
@@ -60,10 +61,16 @@ void loop() {
       unsigned long endTime = startTime + timer; // Time to finish command by
       long command = random(1, 4); // Randomizes a command option between 3 different commands
 
+      // Reset configuration of lid
+      openCap = false;
+      closeCap = false;
+
       if(command == 1) { // CHUG IT command
       digitalWrite(LED1, HIGH); // Turns on LED1 to indicate command 1
+      tone(13, 440); // Tone for command 1
         while(startTime < endTime) { // Loops as long as the timer doesn't expire        
           if(digitalRead(tilt) == HIGH) { // Correct input
+            noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
             correctCommand(); // Gives LED sequence for correct command
@@ -71,18 +78,25 @@ void loop() {
           }
 
           else if(flexADCScale(VCC) < 2.5) {  // Command 2 input chosen instead of command 1 input
+            noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
             break; // Break out of while loop
           }
 
-
+          else if (closeCap && !openCap) { // Command 3 input chosen instead of command 1 input
+            noTone(13); // Ends the tone
+            lose = true; // Loss boolean turns from false to true to end game
+            incorrectCommand(); // Gives LED sequence for incorrect command
+            break; // Break out of while loop
+          }
 
           startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
         }
@@ -91,27 +105,36 @@ void loop() {
 
       else if(command == 2) { // CRUSH IT command
       digitalWrite(LED2, HIGH); // Turns on LED2 to indicate command 2
+      tone(13, 349.23); // Tone for command 2
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 2 input
+            noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
             break; // Break out of while loop
           }
 
           else if(flexADCScale(VCC) < 2.5) {  // Correct input
+            noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
             correctCommand(); // Gives LED sequence for correct command
             break; // Break out of while loop
           }
 
-
+          else if (closeCap && !openCap) { // Command 3 input chosen instead of command 2 input
+            noTone(13); // Ends the tone
+            lose = true; // Loss boolean turns from false to true to end game
+            incorrectCommand(); // Gives LED sequence for incorrect command
+            break; // Break out of while loop
+          }
 
           startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
         }
@@ -119,26 +142,36 @@ void loop() {
 
       else if(command == 3) { // FILL IT command
       digitalWrite(LED3, HIGH); // Turns on LED3 to indicate command 3
+      tone(13, 523.25); // Tone for command 3
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 3 input
+            noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
             break; // Break out of while loop
           }
 
           else if(flexADCScale(VCC) < 2.5) {  // Command 2 input chosen instead of command 3 input
+            noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
             break; // Break out of while loop
           }
 
-
+          else if (closeCap && !openCap) { // Correct input
+            noTone(13); // Ends the tone
+            score++; // Increment score by 1
+            displayScore(score); // Updates the score for the user to see
+            correctCommand(); // Gives LED sequence for correct command
+            break; // Break out of while loop
+          }
 
           startTime = millis(); // Update current time
         }
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
         }
@@ -158,6 +191,18 @@ float flexADCScale(float VCC) {
   int ADCRaw = analogRead(flexSensor); // Read analog from pin A0
   float ADCVoltage = (ADCRaw * VCC) / 1023; // Scale analog with voltage divider formula
   return ADCVoltage;
+}
+
+// Function for the hall effect sensor open/close states for fill it command
+void stateOfCap() {
+  if(digitalRead(hall) == LOW && !openCap) { // Lid is opened from close position
+    openCap = true;
+  }
+
+  else if(digitalRead(hall) == HIGH && openCap && !closeCap) { // Lid is closed from open position
+    openCap = false;
+    closeCap = true;
+  }
 }
 
 // Function to display current/final score
