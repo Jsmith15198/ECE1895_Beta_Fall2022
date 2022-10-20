@@ -11,7 +11,8 @@
 #define LED3 2
 #define tilt 3
 #define hall 4
-#define flexSensor A0
+#define flexSensor1 A0
+#define flexSensor2 A1
 
 // Setup function for all inputs/outputs
 void setup() {
@@ -28,13 +29,14 @@ void setup() {
   pinMode(oneSeg2, OUTPUT); // Ones digit for binary 1 
   pinMode(oneSeg1, OUTPUT); // Ones digit for binary 0 
   pinMode(tilt, INPUT); // Tilt ball is input
-  pinMode(flexSensor, INPUT); // Flex sensor is input
+  pinMode(flexSensor1, INPUT); // Flex sensor 0 is input
+  pinMode(flexSensor2, INPUT); // Flex sensor 1 is input
   pinMode(hall, INPUT); // Hall effect sensor is output
 }
 
-bool startup = false;
-bool openCap = false;
-bool closeCap = false;
+bool startup = false; // Detects the program startup to initialize score
+bool openCap = false; // True if hall effect sensor moves away from being in line with magnet
+bool closeCap = false; // True is hall effect sensor is in line with magnet
 
 // Loop for the bop-it
 void loop() {
@@ -43,7 +45,7 @@ void loop() {
     startup = true; 
   }
   
-  if(flexADCScale(5) < 2.5) { // Starts the game when the bottle is crushed
+  if(flexADCScale(5)) { // Starts the game when the bottle is crushed
     int score = 0; // Sets the initial score of the game to 0
     displayScore(0); // Resets score to "00" from prior game (if applicable) or just stays at "00" for first game
     bool lose = false; // Turns to true if time for response expires or wrong command given
@@ -77,7 +79,7 @@ void loop() {
             break; // Break out of while loop
           }
 
-          else if(flexADCScale(VCC) < 2.5) {  // Command 2 input chosen instead of command 1 input
+          else if(flexADCScale(VCC)) {  // Command 2 input chosen instead of command 1 input
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -114,7 +116,7 @@ void loop() {
             break; // Break out of while loop
           }
 
-          else if(flexADCScale(VCC) < 2.5) {  // Correct input
+          else if(flexADCScale(VCC)) {  // Correct input
             noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
@@ -151,7 +153,7 @@ void loop() {
             break; // Break out of while loop
           }
 
-          else if(flexADCScale(VCC) < 2.5) {  // Command 2 input chosen instead of command 3 input
+          else if(flexADCScale(VCC)) {  // Command 2 input chosen instead of command 3 input
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -186,11 +188,14 @@ void loop() {
 
 }
 
-// Function to determine the ADC value from the flex sensor
-float flexADCScale(float VCC) {
-  int ADCRaw = analogRead(flexSensor); // Read analog from pin A0
-  float ADCVoltage = (ADCRaw * VCC) / 1023; // Scale analog with voltage divider formula
-  return ADCVoltage;
+// Function to determine the ADC value from the flex sensor to see if either sensor was bent
+bool flexADCScale(float VCC) {
+  int ADCRaw1 = analogRead(flexSensor1); // Read analog from pin A0
+  int ADCRaw2 = analogRead(flexSensor2); // Read analog from pin A1
+  float ADCVoltage1 = (ADCRaw1 * VCC) / 1023; // Scale analog with voltage divider formula
+  float ADCVoltage2 = (ADCRaw2 * VCC) / 1023; // Scale analog with voltage divider formula
+  if (ADCVoltage1 < 2.5 || ADCVoltage2 < 2.5) return true; // Sensor bent
+  else return false; // Sensor not bent
 }
 
 // Function for the hall effect sensor open/close states for fill it command
