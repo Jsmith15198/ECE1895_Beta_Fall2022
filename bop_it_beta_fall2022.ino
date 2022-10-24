@@ -13,6 +13,7 @@
 #define hall 4
 #define flexSensor1 A0
 #define flexSensor2 A1
+#define rando A2
 
 // Setup function for all inputs/outputs
 void setup() {
@@ -32,6 +33,7 @@ void setup() {
   pinMode(flexSensor1, INPUT); // Flex sensor 0 is input
   pinMode(flexSensor2, INPUT); // Flex sensor 1 is input
   pinMode(hall, INPUT); // Hall effect sensor is output
+  pinMode(rando, INPUT); // Randomizes commands
 }
 
 bool startup = false; // Detects the program startup to initialize score
@@ -61,7 +63,10 @@ void loop() {
       int timer = 3000 - (i * 20); // Timer set a 3 seconds for 1st command and decreases by 20 ms for each subsequent command
       unsigned long startTime = millis(); // Start command time
       unsigned long endTime = startTime + timer; // Time to finish command by
-      long command = random(1, 4); // Randomizes a command option between 3 different commands
+
+      // Randomizes command
+      randomSeed(analogRead(rando));
+      long command = random(1,4);
 
       // Reset configuration of lid
       openCap = false;
