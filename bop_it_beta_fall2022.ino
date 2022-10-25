@@ -77,6 +77,7 @@ void loop() {
       tone(13, 440); // Tone for command 1
         while(startTime < endTime) { // Loops as long as the timer doesn't expire        
           if(digitalRead(tilt) == HIGH) { // Correct input
+            digitalWrite(LED1, LOW); // Turns off LED1
             noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
@@ -85,6 +86,7 @@ void loop() {
           }
 
           else if(flexADCScale(VCC)) {  // Command 2 input chosen instead of command 1 input
+            digitalWrite(LED1, LOW); // Turns off LED1          
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -92,6 +94,7 @@ void loop() {
           }
 
           else if (closeCap && !openCap) { // Command 3 input chosen instead of command 1 input
+            digitalWrite(LED1, LOW); // Turns off LED1
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -103,6 +106,7 @@ void loop() {
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          digitalWrite(LED1, LOW); // Turns off LED1
           noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
@@ -115,6 +119,7 @@ void loop() {
       tone(13, 349.23); // Tone for command 2
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 2 input
+            digitalWrite(LED2, LOW); // Turns off LED2
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -122,6 +127,7 @@ void loop() {
           }
 
           else if(flexADCScale(VCC)) {  // Correct input
+            digitalWrite(LED2, LOW); // Turns off LED2
             noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
@@ -130,6 +136,7 @@ void loop() {
           }
 
           else if (closeCap && !openCap) { // Command 3 input chosen instead of command 2 input
+            digitalWrite(LED2, LOW); // Turns off LED2
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -141,6 +148,7 @@ void loop() {
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          digitalWrite(LED2, LOW); // Turns off LED2
           noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
@@ -152,6 +160,7 @@ void loop() {
       tone(13, 523.25); // Tone for command 3
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 3 input
+            digitalWrite(LED3, LOW); // Turns off LED3
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -159,6 +168,7 @@ void loop() {
           }
 
           else if(flexADCScale(VCC)) {  // Command 2 input chosen instead of command 3 input
+            digitalWrite(LED3, LOW); // Turns off LED3
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
             incorrectCommand(); // Gives LED sequence for incorrect command
@@ -166,6 +176,7 @@ void loop() {
           }
 
           else if (closeCap && !openCap) { // Correct input
+            digitalWrite(LED3, LOW); // Turns off LED3
             noTone(13); // Ends the tone
             score++; // Increment score by 1
             displayScore(score); // Updates the score for the user to see
@@ -178,6 +189,7 @@ void loop() {
 
         // Scenario in which time expires
         if(startTime >= endTime) {
+          digitalWrite(LED3, LOW); // Turns off LED3
           noTone(13); // Ends the tone
           lose = true; // Loss boolean turns from false to true to end game
           incorrectCommand(); // Uses the same LED sequence as an incorrect command to show a game loss
