@@ -17,7 +17,6 @@
 
 // Setup function for all inputs/outputs
 void setup() {
-  Serial.begin(9600); // Initialize serial with 9600 baud
   pinMode(LED1, OUTPUT); // LED1 is an output for command 1
   pinMode(LED2, OUTPUT); // LED2 is an output for command 2
   pinMode(LED3, OUTPUT); // LED3 is an output for command 3
@@ -32,7 +31,7 @@ void setup() {
   pinMode(tilt, INPUT); // Tilt ball is input
   pinMode(flexSensor1, INPUT); // Flex sensor 0 is input
   pinMode(flexSensor2, INPUT); // Flex sensor 1 is input
-  pinMode(hall, INPUT); // Hall effect sensor is output
+  pinMode(hall, INPUT); // Hall effect sensor is input
   pinMode(rando, INPUT); // Randomizes commands
 }
 
@@ -44,7 +43,7 @@ bool closeCap = false; // True is hall effect sensor is in line with magnet
 void loop() {
   if(!startup) { // Powers up the 7-segment displays upon starting the program
     displayScore(0); // Initalizes the 7-segment displays to read "00"
-    startup = true; 
+    startup = true; // Prevents the loop from occurring again
   }
   
   if(flexADCScale(5)) { // Starts the game when the bottle is crushed
@@ -60,13 +59,13 @@ void loop() {
 
     // for loop to implement game cycle 
     for(int i = 0; i < 99; i++) {
-      int timer = 3000 - (i * 20); // Timer set a 3 seconds for 1st command and decreases by 20 ms for each subsequent command
+      int timer = 15000 - (i * 20); // Timer set a 3 seconds for 1st command and decreases by 20 ms for each subsequent command
       unsigned long startTime = millis(); // Start command time
       unsigned long endTime = startTime + timer; // Time to finish command by
 
       // Randomizes command
-      randomSeed(analogRead(rando));
-      long command = random(1,4);
+      randomSeed(analogRead(rando)); // Creates random seed
+      long command = random(1,4); // Random number from 1-3
 
       // Reset configuration of lid
       openCap = false;
@@ -75,8 +74,10 @@ void loop() {
       if(command == 1) { // CHUG IT command
       digitalWrite(LED1, HIGH); // Turns on LED1 to indicate command 1
       tone(13, 440); // Tone for command 1
-        while(startTime < endTime) { // Loops as long as the timer doesn't expire        
-          if(digitalRead(tilt) == HIGH) { // Correct input
+      delay(5000); // 5 seconds delay to process command
+        while(startTime < endTime) { // Loops as long as the timer doesn't expire
+          stateOfCap();   
+          if(digitalRead(tilt) == LOW) { // Correct input
             digitalWrite(LED1, LOW); // Turns off LED1
             noTone(13); // Ends the tone
             score++; // Increment score by 1
@@ -117,8 +118,10 @@ void loop() {
       else if(command == 2) { // CRUSH IT command
       digitalWrite(LED2, HIGH); // Turns on LED2 to indicate command 2
       tone(13, 349.23); // Tone for command 2
+      delay(5000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
-          if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 2 input
+          stateOfCap();        
+          if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 2 input
             digitalWrite(LED2, LOW); // Turns off LED2
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
@@ -158,8 +161,10 @@ void loop() {
       else if(command == 3) { // FILL IT command
       digitalWrite(LED3, HIGH); // Turns on LED3 to indicate command 3
       tone(13, 523.25); // Tone for command 3
+      delay(5000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
-          if(digitalRead(tilt) == HIGH) { // Command 1 input chosen instead of command 3 input
+          stateOfCap();          
+          if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 3 input
             digitalWrite(LED3, LOW); // Turns off LED3
             noTone(13); // Ends the tone
             lose = true; // Loss boolean turns from false to true to end game
@@ -211,17 +216,17 @@ bool flexADCScale(float VCC) {
   int ADCRaw2 = analogRead(flexSensor2); // Read analog from pin A1
   float ADCVoltage1 = (ADCRaw1 * VCC) / 1023; // Scale analog with voltage divider formula
   float ADCVoltage2 = (ADCRaw2 * VCC) / 1023; // Scale analog with voltage divider formula
-  if (ADCVoltage1 < 2.5 || ADCVoltage2 < 2.5) return true; // Sensor bent
+  if ((ADCVoltage1 < 2.5) || (ADCVoltage2 < 2.5)) return true; // Sensor bent
   else return false; // Sensor not bent
 }
 
 // Function for the hall effect sensor open/close states for fill it command
 void stateOfCap() {
-  if(digitalRead(hall) == LOW && !openCap) { // Lid is opened from close position
+  if((digitalRead(hall) == LOW) && (!openCap)) { // Lid is opened from close position
     openCap = true;
   }
 
-  else if(digitalRead(hall) == HIGH && openCap && !closeCap) { // Lid is closed from open position
+  else if((digitalRead(hall) == HIGH) && (openCap) && (!closeCap)) { // Lid is closed from open position
     openCap = false;
     closeCap = true;
   }
