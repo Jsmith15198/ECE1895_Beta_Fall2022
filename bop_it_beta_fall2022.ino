@@ -53,9 +53,6 @@ void loop() {
 
     // Flex sensor configuration
     float VCC = 5; // Arduino powered with 5V VCC
-    float R2 = 10000; // 10K resistor in series with flex sensor
-    float sensorMinRes = 15000; // Sensor value when flat
-    float sensorMaxRes = 25000; // Sensor value when bent at 90 degrees
 
     // for loop to implement game cycle 
     for(int i = 0; i < 99; i++) {
@@ -74,7 +71,7 @@ void loop() {
       if(command == 1) { // CHUG IT command
       digitalWrite(LED1, HIGH); // Turns on LED1 to indicate command 1
       tone(13, 440); // Tone for command 1
-      delay(5000); // 5 seconds delay to process command
+      delay(2000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();   
           if(digitalRead(tilt) == LOW) { // Correct input
@@ -118,7 +115,7 @@ void loop() {
       else if(command == 2) { // CRUSH IT command
       digitalWrite(LED2, HIGH); // Turns on LED2 to indicate command 2
       tone(13, 349.23); // Tone for command 2
-      delay(5000); // 5 seconds delay to process command
+      delay(2000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();        
           if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 2 input
@@ -161,7 +158,7 @@ void loop() {
       else if(command == 3) { // FILL IT command
       digitalWrite(LED3, HIGH); // Turns on LED3 to indicate command 3
       tone(13, 523.25); // Tone for command 3
-      delay(5000); // 5 seconds delay to process command
+      delay(2000); // 2 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();          
           if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 3 input
