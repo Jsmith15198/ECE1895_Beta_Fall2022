@@ -1,7 +1,7 @@
 #define tenSeg8 5
 #define tenSeg4 6
 #define tenSeg2 7
-#define tenSeg1 8
+#define tenSeg1 A2
 #define oneSeg8 9
 #define oneSeg4 10
 #define oneSeg2 11
@@ -11,9 +11,8 @@
 #define LED3 2
 #define tilt 3
 #define hall 4
-#define flexSensor1 A0
-#define flexSensor2 A1
-#define rando A2
+#define flexSensor A0
+#define rando A1
 
 // Setup function for all inputs/outputs
 void setup() {
@@ -29,8 +28,7 @@ void setup() {
   pinMode(oneSeg2, OUTPUT); // Ones digit for binary 1 
   pinMode(oneSeg1, OUTPUT); // Ones digit for binary 0 
   pinMode(tilt, INPUT); // Tilt ball is input
-  pinMode(flexSensor1, INPUT); // Flex sensor 0 is input
-  pinMode(flexSensor2, INPUT); // Flex sensor 1 is input
+  pinMode(flexSensor, INPUT); // Flex sensor is input
   pinMode(hall, INPUT); // Hall effect sensor is input
   pinMode(rando, INPUT); // Randomizes commands
 }
@@ -42,7 +40,7 @@ bool closeCap = false; // True is hall effect sensor is in line with magnet
 // Loop for the bop-it
 void loop() {
   if(!startup) { // Powers up the 7-segment displays upon starting the program
-    displayScore(0); // Initalizes the 7-segment displays to read "00"
+    displayScore(20); // Initalizes the 7-segment displays to read "00"
     startup = true; // Prevents the loop from occurring again
   }
   
@@ -71,7 +69,7 @@ void loop() {
       if(command == 1) { // CHUG IT command
       digitalWrite(LED1, HIGH); // Turns on LED1 to indicate command 1
       tone(13, 440); // Tone for command 1
-      delay(2000); // 5 seconds delay to process command
+      delay(5000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();   
           if(digitalRead(tilt) == LOW) { // Correct input
@@ -115,7 +113,7 @@ void loop() {
       else if(command == 2) { // CRUSH IT command
       digitalWrite(LED2, HIGH); // Turns on LED2 to indicate command 2
       tone(13, 349.23); // Tone for command 2
-      delay(2000); // 5 seconds delay to process command
+      delay(5000); // 5 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();        
           if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 2 input
@@ -158,7 +156,7 @@ void loop() {
       else if(command == 3) { // FILL IT command
       digitalWrite(LED3, HIGH); // Turns on LED3 to indicate command 3
       tone(13, 523.25); // Tone for command 3
-      delay(2000); // 2 seconds delay to process command
+      delay(5000); // 2 seconds delay to process command
         while(startTime < endTime) { // Loops as long as the timer doesn't expire
           stateOfCap();          
           if(digitalRead(tilt) == LOW) { // Command 1 input chosen instead of command 3 input
@@ -209,11 +207,9 @@ void loop() {
 
 // Function to determine the ADC value from the flex sensor to see if either sensor was bent
 bool flexADCScale(float VCC) {
-  int ADCRaw1 = analogRead(flexSensor1); // Read analog from pin A0
-  int ADCRaw2 = analogRead(flexSensor2); // Read analog from pin A1
-  float ADCVoltage1 = (ADCRaw1 * VCC) / 1023; // Scale analog with voltage divider formula
-  float ADCVoltage2 = (ADCRaw2 * VCC) / 1023; // Scale analog with voltage divider formula
-  if ((ADCVoltage1 < 2.5) || (ADCVoltage2 < 2.5)) return true; // Sensor bent
+  int ADCRaw = analogRead(flexSensor); // Read analog from pin A0
+  float ADCVoltage = (ADCRaw * VCC) / 1023; // Scale analog with voltage divider formula
+  if (ADCVoltage < .75) return true; // Sensor bent
   else return false; // Sensor not bent
 }
 
